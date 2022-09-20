@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         HiBob Time Utilities
 // @namespace    http://tampermonkey.net/
-// @version      1.0.3
+// @version      1.0.4
 // @description  Utilities to make it easier to log time in HiBob
 // @author       Funday Factory
 // @match        https://app.hibob.com/*
@@ -931,4 +931,3 @@ class ReasonEnhancements {
     }
 }
 new ReasonEnhancements();
-//add "end" time -> calculated on ui level, when changed, updates duration and submits. Updates when duration is changed. 
