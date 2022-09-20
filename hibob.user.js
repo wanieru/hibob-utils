@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         HiBob Time Utilities
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Utilities to make it easier to log time in HiBob
 // @author       Funday Factory
 // @match        https://app.hibob.com/*
@@ -274,6 +274,7 @@ class TimelogUI {
         display: table;
         margin-left: auto;
         margin-right: auto;
+        min-width: 650px;
     }
 `;
         document.body.appendChild(style);
