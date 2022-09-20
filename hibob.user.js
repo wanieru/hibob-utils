@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         HiBob Time Utilities
 // @namespace    http://tampermonkey.net/
-// @version      1.0.2
+// @version      1.0.3
 // @description  Utilities to make it easier to log time in HiBob
 // @author       Funday Factory
 // @match        https://app.hibob.com/*
@@ -209,7 +209,6 @@ class TimelogUI {
         margin-top: 10px;
         padding: 10px;
         border: 1px solid gray;
-        width: 650px;
         border-radius: 5px;
     }
     .tl-save-status, .tl-add-entry-btn
@@ -260,7 +259,6 @@ class TimelogUI {
     }
     .tl-week-seperator
     {
-        width: 650px;
         border-bottom: 2px solid gray;
         margin-top: 25px;
         margin-bottom: 25px;
@@ -274,6 +272,9 @@ class TimelogUI {
         display: table;
         margin-left: auto;
         margin-right: auto;
+    }
+    .tl-ui-inner, .tl-week-seperator, .tl-date
+    {
         min-width: 650px;
     }
 `;
