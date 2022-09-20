@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         HiBob Time Utilities
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.0.1
 // @description  Utilities to make it easier to log time in HiBob
 // @author       Funday Factory
 // @match        https://app.hibob.com/*
@@ -165,17 +165,17 @@ class TimelogUI {
     }
     toggleVisible() {
         var _a;
-        if (!this.timelogUI)
+        if (!this.timelogUIOuter)
             return;
-        if (this.timelogUI.style.display === "none") {
-            this.timelogUI.style.display = "block";
+        if (this.timelogUIOuter.style.display === "none") {
+            this.timelogUIOuter.style.display = "block";
             document.body.style.overflow = "hidden";
             if (this.sheetContainer)
                 this.sheetContainer.innerHTML = "";
             (_a = this.model) === null || _a === void 0 ? void 0 : _a.fetchSheets();
         }
         else {
-            this.timelogUI.style.display = "none";
+            this.timelogUIOuter.style.display = "none";
             document.body.style.overflow = "initial";
         }
     }
@@ -269,34 +269,43 @@ class TimelogUI {
     {
         margin: 5px;
     }
+    .tl-ui-inner
+    {
+        display: table;
+        margin-left: auto;
+        margin-right: auto;
+    }
 `;
         document.body.appendChild(style);
-        this.timelogUI = document.createElement("div");
-        this.timelogUI.className = "tl-ui";
-        this.timelogUI.style.display = "none";
-        document.body.append(this.timelogUI);
+        this.timelogUIOuter = document.createElement("div");
+        this.timelogUIOuter.className = "tl-ui";
+        this.timelogUIOuter.style.display = "none";
+        document.body.append(this.timelogUIOuter);
+        this.timelogUIInner = document.createElement("div");
+        this.timelogUIInner.className = "tl-ui-inner";
+        this.timelogUIOuter.append(this.timelogUIInner);
         const closeButton = document.createElement("button");
         closeButton.className = "tl-close-btn";
         closeButton.textContent = "➖";
         closeButton.onclick = () => this.toggleVisible();
-        this.timelogUI.appendChild(closeButton);
+        this.timelogUIInner.appendChild(closeButton);
         const sheetDropdownLabel = document.createElement("span");
         sheetDropdownLabel.innerText = "Sheet:";
-        this.timelogUI.appendChild(sheetDropdownLabel);
+        this.timelogUIInner.appendChild(sheetDropdownLabel);
         this.sheetDropdown = document.createElement("select");
         this.sheetDropdown.className = "tl-sheet-select";
         this.sheetDropdown.onchange = () => this.onSelectedSheetChange();
-        this.timelogUI.appendChild(this.sheetDropdown);
+        this.timelogUIInner.appendChild(this.sheetDropdown);
         this.saveStatus = document.createElement("span");
         this.saveStatus.className = "tl-save-status";
-        this.timelogUI.append(this.saveStatus);
+        this.timelogUIInner.append(this.saveStatus);
         this.balanceLabel = document.createElement("div");
         this.balanceLabel.innerText = "Balance: ";
         this.balanceLabel.className = "tl-balance-label";
-        this.timelogUI.append(this.balanceLabel);
+        this.timelogUIInner.append(this.balanceLabel);
         this.sheetContainer = document.createElement("div");
         this.sheetContainer.className = "tl-sheet";
-        this.timelogUI.appendChild(this.sheetContainer);
+        this.timelogUIInner.appendChild(this.sheetContainer);
     }
     createModel() {
         if (this.model) {
