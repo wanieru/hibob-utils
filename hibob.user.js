@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         HiBob Time Utilities
 // @namespace    http://tampermonkey.net/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Utilities to make it easier to log time in HiBob
 // @author       Funday Factory
 // @match        https://app.hibob.com/*
@@ -277,6 +277,16 @@ class TimelogUI {
     {
         min-width: 650px;
     }
+    .tl-entry-comment {
+        margin-top: 5px;
+        margin-bottom: 15px;
+        width: 100%;
+        display: none;
+    }
+    .tl-has-comment .tl-entry-comment
+    {
+        display: block;
+    }
 `;
         document.body.appendChild(style);
         this.timelogUIOuter = document.createElement("div");
@@ -326,6 +336,7 @@ class TimelogUI {
         this.model.initialize();
     }
     onDateUpdated(data) {
+        var _a;
         if (this.selectedSheet === data.sheet && this.sheetContainer) {
             let container = this.sheetDates.find(d => d.date === data.date);
             if (!container) {
@@ -361,7 +372,9 @@ class TimelogUI {
                         startHour: document.createElement("input"),
                         endHour: document.createElement("input"),
                         length: document.createElement("input"),
-                        reason: document.createElement("select")
+                        reason: document.createElement("select"),
+                        comment: document.createElement("input"),
+                        commentButton: document.createElement("button")
                     };
                     container.entries.push(parent);
                     parent.parent.className = "tl-entry";
@@ -414,17 +427,38 @@ class TimelogUI {
                     durationLabel.innerText = "hour(s)";
                     parent.parent.appendChild(durationLabel);
                     if (!data.sheet.locked) {
+                        parent.commentButton.innerText = "📝";
+                        parent.commentButton.className = "tl-add-comment-btn";
+                        parent.commentButton.onclick = () => { var _a; return (_a = this.model) === null || _a === void 0 ? void 0 : _a.toggleComment(data.date, data.date.entries.indexOf(entry)); };
+                        parent.parent.appendChild(parent.commentButton);
                         const remove = document.createElement("button");
                         remove.innerText = "❌";
                         remove.className = "tl-remove-entry-btn";
                         remove.onclick = () => { var _a; return (_a = this.model) === null || _a === void 0 ? void 0 : _a.deleteEntry(data.date, data.date.entries.indexOf(entry)); };
                         parent.parent.appendChild(remove);
                     }
+                    parent.comment.type = "text";
+                    parent.comment.placeholder = "Write a note...";
+                    parent.comment.title = "Write a note...";
+                    parent.comment.className = "tl-entry-comment";
+                    if (data.sheet.locked)
+                        parent.comment.disabled = true;
+                    parent.comment.onchange = () => {
+                        var _a, _b;
+                        (_a = this.model) === null || _a === void 0 ? void 0 : _a.changeComment(data.date, data.date.entries.indexOf(entry), (_b = parent === null || parent === void 0 ? void 0 : parent.comment.value) !== null && _b !== void 0 ? _b : "");
+                    };
+                    parent.parent.appendChild(parent.comment);
                 }
                 parent.startHour.value = Dates.formatHour(entry.startHour);
                 parent.length.value = entry.lengthHours.toString();
                 parent.endHour.value = Dates.formatHour(entry.startHour + entry.lengthHours);
                 parent.reason.value = entry.reasonId;
+                parent.comment.value = (_a = entry.comment) !== null && _a !== void 0 ? _a : "";
+                parent.commentButton.title = entry.hasComment ? "Remove note" : "Add note";
+                if (entry.hasComment)
+                    parent.parent.classList.add("tl-has-comment");
+                else
+                    parent.parent.classList.remove("tl-has-comment");
             }
             for (const entry of container.entries) {
                 if (!data.date.entries.find(e => e === entry.entry)) {
@@ -594,7 +628,8 @@ class TimelogModel {
                         startHour: Numbers.floor((((_a = Dates.parse(e.start)) !== null && _a !== void 0 ? _a : Date.now()) - ((_b = Dates.parse(date.date)) !== null && _b !== void 0 ? _b : Date.now())) / (3600 * 1000), 2),
                         lengthHours: Numbers.ceil((((_c = Dates.parse(e.end)) !== null && _c !== void 0 ? _c : Date.now()) - ((_d = Dates.parse(e.start)) !== null && _d !== void 0 ? _d : Date.now())) / (3600 * 1000), 2),
                         reasonId: e.reason,
-                        comment: (_e = e.comment) !== null && _e !== void 0 ? _e : null
+                        comment: (_e = e.comment) !== null && _e !== void 0 ? _e : null,
+                        hasComment: !!e.comment
                     };
                 }).sort((a, b) => a.startHour - b.startHour)
             };
@@ -626,6 +661,26 @@ class TimelogModel {
         if (!sheet)
             return;
         date.entries[index].reasonId = reason;
+        date.dirty = true;
+        this.queueSave();
+        this.onDateUpdated.fire({ sheet, date });
+    }
+    changeComment(date, index, comment) {
+        const sheet = this.sheets.find(s => s.dates.some(d => d === date));
+        if (!sheet)
+            return;
+        date.entries[index].comment = comment;
+        date.entries[index].hasComment = true;
+        date.dirty = true;
+        this.queueSave();
+        this.onDateUpdated.fire({ sheet, date });
+    }
+    toggleComment(date, index) {
+        const sheet = this.sheets.find(s => s.dates.some(d => d === date));
+        if (!sheet)
+            return;
+        date.entries[index].hasComment = !date.entries[index].hasComment;
+        date.entries[index].comment = date.entries[index].hasComment ? "" : null;
         date.dirty = true;
         this.queueSave();
         this.onDateUpdated.fire({ sheet, date });
@@ -681,7 +736,8 @@ class TimelogModel {
             startHour,
             lengthHours,
             reasonId,
-            comment: null
+            comment: null,
+            hasComment: false
         });
         date.dirty = true;
         this.queueSave();
