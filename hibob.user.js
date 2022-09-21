@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         HiBob Time Utilities
 // @namespace    http://tampermonkey.net/
-// @version      1.0.6
+// @version      1.0.7
 // @description  Utilities to make it easier to log time in HiBob
 // @author       Funday Factory
 // @match        https://app.hibob.com/*
@@ -621,7 +621,7 @@ class TimelogModel {
             const value = {
                 dirty: false,
                 date: time,
-                weekend: [0, 6].includes(new Date(time).getDay()),
+                weekend: date.status === "WeekendEvent",
                 entries: date.entries.map(e => {
                     var _a, _b, _c, _d, _e;
                     return {
