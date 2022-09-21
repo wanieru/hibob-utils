@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         HiBob Time Utilities
 // @namespace    http://tampermonkey.net/
-// @version      1.0.5
+// @version      1.0.6
 // @description  Utilities to make it easier to log time in HiBob
 // @author       Funday Factory
 // @match        https://app.hibob.com/*
@@ -416,7 +416,7 @@ class TimelogUI {
                     parent.length.type = "number";
                     parent.length.className = "tl-entry-length";
                     if (data.sheet.locked)
-                        parent.startHour.disabled = true;
+                        parent.length.disabled = true;
                     parent.length.onchange = () => {
                         var _a, _b;
                         (_a = this.model) === null || _a === void 0 ? void 0 : _a.changeLengthHours(data.date, data.date.entries.indexOf(entry), parseFloat((_b = parent === null || parent === void 0 ? void 0 : parent.length.value) !== null && _b !== void 0 ? _b : ""));
