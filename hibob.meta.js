@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        HiBob Time Utilities
-// @version     1.0.10
+// @version     1.1.0
 // @author      Funday Factory
 // @description Utilities to make it easier to log time in HiBob
 // @match       https://app.hibob.com/*
